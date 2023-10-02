@@ -1,4 +1,5 @@
 #include "WSA.h"
+#ifdef _WIN32
 #include <winsock2.h>
 #include <iostream>
 
@@ -20,3 +21,4 @@ namespace GNetworking
     }
 
 } // namespace GNetworking
+#endif
