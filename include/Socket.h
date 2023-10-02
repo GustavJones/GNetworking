@@ -41,6 +41,7 @@ namespace GNetworking
         std::string Recv(int _msgLen = 1024);
 
         void Connect(std::string _ip, int _port);
+        void Close();
 
         ~Socket();
     };

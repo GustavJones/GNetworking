@@ -116,6 +116,11 @@ namespace GNetworking
         }
     }
 
+    void Socket::Close()
+    {
+        close(sock);
+    }
+
     Socket::~Socket()
     {
         delete clientSock;
@@ -238,10 +243,15 @@ namespace GNetworking
         }
     }
 
+    void Socket::Close()
+    {
+        closesocket(sock);
+    }
+
     Socket::~Socket()
     {
         delete clientSock;
-        closesocket(sock);
+        Close();
         WSAEnd();
     }
 
