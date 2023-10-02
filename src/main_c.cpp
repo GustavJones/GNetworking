@@ -4,7 +4,7 @@
 int main(int argc, char const *argv[])
 {
     GNetworking::Socket ClientSock(AF_INET, SOCK_STREAM, 0);
-    ClientSock.Connect("10.0.0.180", 1111);
+    ClientSock.Connect("10.0.0.150", 1111);
 
     ClientSock.Send("This is a test message");
 
@@ -14,14 +14,6 @@ int main(int argc, char const *argv[])
         std::getline(std::cin, input);
 
         ClientSock.Send(input);
-
-        // std::string data = ClientSock.Recv();
-        // std::cout << ClientSock.Recv() << '\n';
-
-        // if (data == "")
-        // {
-        //     break;
-        // }
     }
 
     return 0;

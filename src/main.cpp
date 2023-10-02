@@ -4,7 +4,7 @@
 int main(int argc, char const *argv[])
 {
     GNetworking::Socket ServerSock(AF_INET, SOCK_STREAM, 0);
-    ServerSock.Bind("10.0.0.180", 1111);
+    ServerSock.Bind("10.0.0.150", 1111);
     ServerSock.Listen();
     GNetworking::Socket ClientSock = *ServerSock.Accept();
 

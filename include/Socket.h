@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 
 #ifdef unix
 #include <iostream>
@@ -7,8 +8,12 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+typedef int SOCKET;
+
 #elif _WIN32
+#include <iostream>
 #include <winsock2.h>
+#include "WSA.h"
 
 #endif
 
@@ -21,10 +26,10 @@ namespace GNetworking
         Socket *clientSock;
 
     public:
-        int sock;
+        SOCKET sock;
 
-        Socket(int _family, int _type, int _protocol);
-        Socket(int _socket, int _family, int _type, int _protocol);
+        Socket(SOCKET _family, int _type, int _protocol);
+        Socket(SOCKET _socket, int _family, int _type, int _protocol);
 
         void Bind(std::string _ip, int _port);
         void Listen();
