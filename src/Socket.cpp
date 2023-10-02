@@ -123,7 +123,6 @@ namespace GNetworking
 
     Socket::~Socket()
     {
-        delete clientSock;
         this->Close();
     }
 
@@ -250,7 +249,6 @@ namespace GNetworking
 
     Socket::~Socket()
     {
-        delete clientSock;
         this->Close();
         WSAEnd();
     }
