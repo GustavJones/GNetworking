@@ -242,6 +242,7 @@ namespace GNetworking
     {
         delete clientSock;
         closesocket(sock);
+        WSAEnd();
     }
 
 #endif

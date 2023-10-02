@@ -14,4 +14,9 @@ namespace GNetworking
         }
     }
 
+    void WSAEnd()
+    {
+        WSACleanup();
+    }
+
 } // namespace GNetworking

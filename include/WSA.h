@@ -5,6 +5,7 @@
 namespace GNetworking
 {
     void WSAInit();
+    void WSAEnd();
 } // namespace GNetworking
 
 #endif
