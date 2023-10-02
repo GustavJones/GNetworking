@@ -4,7 +4,7 @@ namespace GNetworking
 {
 #ifdef unix
 
-    Socket::Socket(SOCKET _family, int _type, int _protocol) : m_family(_family), m_type(_type), m_protocol(_protocol)
+    Socket::Socket(int _family, int _type, int _protocol) : m_family(_family), m_type(_type), m_protocol(_protocol)
     {
         sock = socket(m_family, m_type, m_protocol);
         if (sock == -1)
@@ -124,7 +124,7 @@ namespace GNetworking
 
 #elif _WIN32
 
-    Socket::Socket(SOCKET _family, int _type, int _protocol) : m_family(_family), m_type(_type), m_protocol(_protocol)
+    Socket::Socket(int _family, int _type, int _protocol) : m_family(_family), m_type(_type), m_protocol(_protocol)
     {
         WSAInit();
 

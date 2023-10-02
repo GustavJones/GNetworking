@@ -28,7 +28,7 @@ namespace GNetworking
     public:
         SOCKET sock;
 
-        Socket(SOCKET _family, int _type, int _protocol);
+        Socket(int _family, int _type, int _protocol);
         Socket(SOCKET _socket, int _family, int _type, int _protocol);
 
         void Bind(std::string _ip, int _port);
