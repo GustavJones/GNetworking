@@ -124,7 +124,7 @@ namespace GNetworking
     Socket::~Socket()
     {
         delete clientSock;
-        close(sock);
+        this->Close();
     }
 
 #elif _WIN32
@@ -251,7 +251,7 @@ namespace GNetworking
     Socket::~Socket()
     {
         delete clientSock;
-        Close();
+        this->Close();
         WSAEnd();
     }
 
