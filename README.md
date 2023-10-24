@@ -8,7 +8,7 @@
 ## How can I use it:
 Include the socket header file `#include "Socket.h"` after linking and setting up include directories. Then create a socket
 by calling `GNetworking::Socket` and creating a socket object. The socket object contains methods for Binding,
- Connecting, Listening, Sending and Recieving.
+ Connecting, Listening, Sending and Recieving. Tested with MingW-w64 compiler on Windows and Ubuntu build of GCC on Linux
 
 ### Client:
 ```c++
@@ -74,4 +74,5 @@ which is also used for Linux code.
 
 ## Usage:
 Feel free to learn from my code and use snippets where needed. Please let me know where I can improve this 
-small library to make it more simple to use.
+small library to make it more simple to use. Compile with MingW-w64 for best results as that is the compiler that was 
+used to create the library
