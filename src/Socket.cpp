@@ -245,6 +245,7 @@ namespace GNetworking
     void Socket::Close()
     {
         closesocket(sock);
+        delete clientSock;
     }
 
     Socket::~Socket()
