@@ -79,7 +79,7 @@ namespace GNetworking
     std::string Socket::Recv(int _msgLen)
     {
         std::string out;
-        char buffer[_msgLen];
+        char *buffer = new char[_msgLen];
         int recvLen = recv(sock, buffer, _msgLen, 0);
 
         if (recvLen == -1)
@@ -99,6 +99,8 @@ namespace GNetworking
                 }
             }
         }
+
+        delete buffer;
 
         return out;
     }
@@ -205,7 +207,7 @@ namespace GNetworking
     std::string Socket::Recv(int _msgLen)
     {
         std::string out;
-        char buffer[_msgLen];
+        char *buffer = new char[_msgLen];
         int recvLen = recv(sock, buffer, _msgLen, 0);
 
         if (recvLen == -1)
@@ -225,6 +227,8 @@ namespace GNetworking
                 }
             }
         }
+
+        delete buffer;
 
         return out;
     }
