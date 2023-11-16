@@ -249,7 +249,7 @@ namespace GNetworking
     void Socket::Close()
     {
         closesocket(sock);
-        delete clientSock;
+        // clientSock->Close();
     }
 
     Socket::~Socket()
