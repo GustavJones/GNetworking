@@ -38,6 +38,7 @@ namespace GNetworking
         Socket *Accept(sockaddr_in &_addr);
 
         void Send(std::string _msg);
+        void Send(char *_msg, int _len);
         std::string Recv(int _msgLen = 1024);
 
         void Connect(std::string _ip, int _port);
