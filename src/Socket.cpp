@@ -84,14 +84,6 @@ namespace GNetworking
         }
     }
 
-    void Socket::Send(char *_msg)
-    {
-        if (send(sock, _msg, _msg.length(), 0) == -1)
-        {
-            std::cerr << "Failed to send data through socket" << '\n';
-        }
-    }
-
     std::string Socket::Recv(int _msgLen)
     {
         std::string out;
