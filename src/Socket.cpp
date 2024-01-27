@@ -1,11 +1,18 @@
 #include "GNetworking/Socket.h"
+#include <asm-generic/socket.h>
+#include <cstdlib>
+#include <sys/socket.h>
 
 namespace GNetworking {
+// -------------------------------------
+// ------------- Linux -----------------
+// -------------------------------------
 #ifdef unix
 
 Socket::Socket(int _family, int _type, int _protocol)
     : m_family(_family), m_type(_type), m_protocol(_protocol) {
   sock = socket(m_family, m_type, m_protocol);
+
   if (sock == -1) {
     std::cerr << "Failed to create socket" << '\n';
   }
@@ -26,6 +33,7 @@ void Socket::Bind(std::string _ip, int _port) {
 
   if (bind(sock, (sockaddr *)&addr, (socklen_t)sizeof(addr)) == -1) {
     std::cerr << "Failed to bind socket" << '\n';
+    std::exit(1);
   }
 }
 
@@ -87,7 +95,7 @@ std::string Socket::Recv(int _msgLen) {
     }
   }
 
-  delete buffer;
+  delete[] buffer;
 
   return out;
 }
@@ -106,6 +114,10 @@ void Socket::Connect(std::string _ip, int _port) {
 void Socket::Close() { close(sock); }
 
 Socket::~Socket() { this->Close(); }
+
+// -------------------------------------
+// ------------ Windows ----------------
+// -------------------------------------
 
 #elif _WIN32
 
