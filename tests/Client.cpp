@@ -1,20 +1,18 @@
-#include "Socket.h"
+#include "GNetworking/Socket.h"
 #include <iostream>
 
-int main(int argc, char const *argv[])
-{
-    GNetworking::Socket ClientSock(AF_INET, SOCK_STREAM, 0);
-    ClientSock.Connect("10.0.0.180", 1111);
+int main(int argc, char const *argv[]) {
+  GNetworking::Socket ClientSock(AF_INET, SOCK_STREAM, 0);
+  ClientSock.Connect("10.0.0.180", 1111);
 
-    ClientSock.Send("This is a test message");
+  ClientSock.Send("This is a test message");
 
-    while (true)
-    {
-        std::string input;
-        std::getline(std::cin, input);
+  while (true) {
+    std::string input;
+    std::getline(std::cin, input);
 
-        ClientSock.Send(input);
-    }
+    ClientSock.Send(input);
+  }
 
-    return 0;
+  return 0;
 }

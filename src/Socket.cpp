@@ -113,7 +113,10 @@ void Socket::Connect(std::string _ip, int _port) {
 
 void Socket::Close() { close(sock); }
 
-Socket::~Socket() { this->Close(); }
+Socket::~Socket() {
+  delete clientSock;
+  this->Close();
+}
 
 // -------------------------------------
 // ------------ Windows ----------------
@@ -229,6 +232,7 @@ void Socket::Close() {
 }
 
 Socket::~Socket() {
+  delete clientSock;
   this->Close();
   WSAEnd();
 }
