@@ -277,7 +277,7 @@ namespace GNetworking
   {
     closesocket(sock);
     // clientSock->Close();
-    delete clientSock
+    delete clientSock;
   }
 
   Socket::~Socket()
