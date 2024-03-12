@@ -23,7 +23,6 @@ namespace GNetworking
     {
     private:
         int m_family, m_type, m_protocol;
-        Socket *clientSock;
 
     public:
         SOCKET sock;

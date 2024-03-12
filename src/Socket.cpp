@@ -58,8 +58,7 @@ namespace GNetworking
       return nullptr;
     }
 
-    clientSock = new Socket(sockReturn, m_family, m_type, m_protocol);
-    return clientSock;
+    return new Socket(sockReturn, m_family, m_type, m_protocol);
   }
 
   Socket *Socket::Accept(sockaddr_in &_addr)
@@ -71,8 +70,7 @@ namespace GNetworking
       return nullptr;
     }
 
-    clientSock = new Socket(sockReturn, m_family, m_type, m_protocol);
-    return clientSock;
+    return new Socket(sockReturn, m_family, m_type, m_protocol);
   }
 
   void Socket::Send(std::string _msg)
@@ -198,8 +196,7 @@ namespace GNetworking
       return nullptr;
     }
 
-    clientSock = new Socket(sockReturn, m_family, m_type, m_protocol);
-    return clientSock;
+    return new Socket(sockReturn, m_family, m_type, m_protocol);
   }
 
   Socket *Socket::Accept(sockaddr_in &_addr)
@@ -211,8 +208,7 @@ namespace GNetworking
       return nullptr;
     }
 
-    clientSock = new Socket(sockReturn, m_family, m_type, m_protocol);
-    return clientSock;
+    return new Socket(sockReturn, m_family, m_type, m_protocol);
   }
 
   void Socket::Send(std::string _msg)
@@ -276,8 +272,6 @@ namespace GNetworking
   void Socket::Close()
   {
     closesocket(sock);
-    // clientSock->Close();
-    delete clientSock;
   }
 
   Socket::~Socket()
