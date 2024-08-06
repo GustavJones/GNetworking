@@ -4,7 +4,7 @@
 #include <sys/socket.h>
 
 int main(int argc, char const *argv[]) {
-  int state = 0;
+  int state = 1;
   std::string buff;
 
   GNetworking::Socket ServerSock;
@@ -31,8 +31,9 @@ int main(int argc, char const *argv[]) {
 
   while (state > 0) {
     state = ClientSock.Recv(buff);
-
-    std::cout << buff << std::endl;
+    if (state > 0) {
+      std::cout << buff << std::endl;
+    }
   }
 
   return 0;

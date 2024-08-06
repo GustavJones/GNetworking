@@ -9,12 +9,10 @@ int main(int argc, char const *argv[]) {
     std::exit(1);
   }
 
-  if (ClientSock.Connect("10.0.0.180", 1111) < 0) {
+  if (ClientSock.Connect("0.0.0.0", 1111) < 0) {
     std::cerr << "Failed to connect to socket" << std::endl;
     std::exit(1);
   }
-
-  ClientSock.Send("This is a test message");
 
   while (true) {
     std::string input;
