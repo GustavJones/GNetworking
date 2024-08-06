@@ -1,4 +1,4 @@
-#include "GNetworking/Socket.h"
+#include "GNetworking/Socket.hpp"
 #include <cstdlib>
 #include <iostream>
 #include <sys/socket.h>
