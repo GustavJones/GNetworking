@@ -1,4 +1,4 @@
-#include "GNetworking/WSA.h"
+#include "GNetworking/WSA.hpp"
 #ifdef _WIN32
 #include <iostream>
 #include <winsock2.h>

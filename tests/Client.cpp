@@ -1,9 +1,18 @@
-#include "GNetworking/Socket.h"
+#include "GNetworking/Socket.hpp"
+#include <cstdlib>
 #include <iostream>
 
 int main(int argc, char const *argv[]) {
-  GNetworking::Socket ClientSock(AF_INET, SOCK_STREAM, 0);
-  ClientSock.Connect("10.0.0.180", 1111);
+  GNetworking::Socket ClientSock;
+  if (ClientSock.CreateSocket(AF_INET, SOCK_STREAM, 0) < 0) {
+    std::cerr << "Failed to Create socket" << std::endl;
+    std::exit(1);
+  }
+
+  if (ClientSock.Connect("10.0.0.180", 1111) < 0) {
+    std::cerr << "Failed to connect to socket" << std::endl;
+    std::exit(1);
+  }
 
   ClientSock.Send("This is a test message");
 
