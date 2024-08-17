@@ -101,7 +101,7 @@ int Socket::Accept(Socket &_connectedSock, const std::string &_addr,
   return state;
 }
 
-int Socket::Send(std::string _msg, int flags) {
+int Socket::Send(std::string _msg, int flags) const {
   if (!m_init) {
     return sock;
   }
@@ -110,7 +110,7 @@ int Socket::Send(std::string _msg, int flags) {
   return state;
 }
 
-int Socket::Send(char *_msg, int _len, int flags) {
+int Socket::Send(char *_msg, int _len, int flags) const {
   if (!m_init) {
     return sock;
   }
@@ -119,7 +119,7 @@ int Socket::Send(char *_msg, int _len, int flags) {
   return state;
 }
 
-int Socket::Recv(std::string &buff, int _msgLen, int _flags) {
+int Socket::Recv(std::string &buff, int _msgLen, int _flags) const {
   if (!m_init) {
     return sock;
   }

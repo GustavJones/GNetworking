@@ -39,9 +39,9 @@ public:
   int Accept(GNetworking::Socket &_connectedSock, const std::string &_addr,
              const int &_port);
 
-  int Send(std::string _msg, int flags = 0);
-  int Send(char *_msg, int _len, int flags = 0);
-  int Recv(std::string &buff, int _msgLen = 1024, int _flags = 0);
+  int Send(std::string _msg, int flags = 0) const;
+  int Send(char *_msg, int _len, int flags = 0) const;
+  int Recv(std::string &buff, int _msgLen = 1024, int _flags = 0) const;
 
   int Connect(std::string _ip, int _port);
   void Close();
