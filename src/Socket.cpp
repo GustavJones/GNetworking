@@ -8,197 +8,169 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-namespace GNetworking
-{
-	Socket::Socket() : m_init(false) {}
+namespace GNetworking {
 
-	SOCKET Socket::SetSocket(const SOCKET &_sock, const int &_family,
-							 const int &_type, const int &_protocol)
-	{
-		if (_sock > 0)
-		{
-			m_family = _family;
-			m_type = _type;
-			m_protocol = _protocol;
-			sock = _sock;
-			m_init = true;
-			return _sock;
-		}
-		else
-		{
-			return _sock;
-		}
-	}
+void Socket::Init() {}
+void Socket::DeInit() {}
 
-	SOCKET Socket::CreateSocket(const int &_family, const int &_type,
-								const int &_protocol)
-	{
-		m_family = _family;
-		m_type = _type;
-		m_protocol = _protocol;
+Socket::Socket() : m_init(false) {}
 
-		sock = socket(m_family, m_type, m_protocol);
+SOCKET Socket::SetSocket(const SOCKET &_sock, const int &_family,
+                         const int &_type, const int &_protocol) {
+  if (_sock > 0) {
+    m_family = _family;
+    m_type = _type;
+    m_protocol = _protocol;
+    sock = _sock;
+    m_init = true;
+    return _sock;
+  } else {
+    return _sock;
+  }
+}
 
-		if (sock > 0)
-		{
-			m_init = true;
-		}
-		return sock;
-	}
+SOCKET Socket::CreateSocket(const int &_family, const int &_type,
+                            const int &_protocol) {
+  m_family = _family;
+  m_type = _type;
+  m_protocol = _protocol;
 
-	Socket::Socket(const int &_family, const int &_type, const int &_protocol)
-	{
-		CreateSocket(_family, _type, _protocol);
-	}
+  sock = socket(m_family, m_type, m_protocol);
 
-	int Socket::Bind(std::string _ip, int _port) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
-		sockaddr_in addr;
-		addr.sin_family = m_family;
-		addr.sin_addr.s_addr = inet_addr(_ip.c_str());
-		addr.sin_port = htons(_port);
+  if (sock > 0) {
+    m_init = true;
+  }
+  return sock;
+}
 
-		int state = bind(sock, (sockaddr *)&addr, (socklen_t)sizeof(addr));
-		return state;
-	}
+Socket::Socket(const int &_family, const int &_type, const int &_protocol) {
+  CreateSocket(_family, _type, _protocol);
+}
 
-	int Socket::Listen(const unsigned int &_connectionsNum) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+int Socket::Bind(std::string _ip, int _port) const {
+  if (!m_init) {
+    return sock;
+  }
+  sockaddr_in addr;
+  addr.sin_family = m_family;
+  addr.sin_addr.s_addr = inet_addr(_ip.c_str());
+  addr.sin_port = htons(_port);
 
-		int state;
-		if (_connectionsNum == 0)
-		{
-			state = listen(sock, SOMAXCONN);
-		}
-		else
-		{
-			state = listen(sock, _connectionsNum);
-		}
-		return state;
-	}
+  int state = bind(sock, (sockaddr *)&addr, (socklen_t)sizeof(addr));
+  return state;
+}
 
-	SOCKET Socket::Accept(Socket &_connectedSock) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+int Socket::Listen(const unsigned int &_connectionsNum) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		SOCKET sockReturn = accept(sock, nullptr, nullptr);
-		SOCKET state =
-			_connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
+  int state;
+  if (_connectionsNum == 0) {
+    state = listen(sock, SOMAXCONN);
+  } else {
+    state = listen(sock, _connectionsNum);
+  }
+  return state;
+}
 
-		return state;
-	}
+SOCKET Socket::Accept(Socket &_connectedSock) const {
+  if (!m_init) {
+    return sock;
+  }
 
-	SOCKET Socket::Accept(Socket &_connectedSock, const std::string &_addr,
-						  const int &_port) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  SOCKET sockReturn = accept(sock, nullptr, nullptr);
+  SOCKET state =
+      _connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
 
-		sockaddr_in addr_in;
-		addr_in.sin_addr.s_addr = inet_addr(_addr.c_str());
-		addr_in.sin_port = htons(_port);
-		addr_in.sin_family = m_family;
+  return state;
+}
 
-		SOCKET sockReturn =
-			accept(sock, (sockaddr *)&addr_in, (socklen_t *)sizeof(addr_in));
-		SOCKET state =
-			_connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
+SOCKET Socket::Accept(Socket &_connectedSock, const std::string &_addr,
+                      const int &_port) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		return state;
-	}
+  sockaddr_in addr_in;
+  addr_in.sin_addr.s_addr = inet_addr(_addr.c_str());
+  addr_in.sin_port = htons(_port);
+  addr_in.sin_family = m_family;
 
-	int Socket::Send(std::string _msg, int flags) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  SOCKET sockReturn =
+      accept(sock, (sockaddr *)&addr_in, (socklen_t *)sizeof(addr_in));
+  SOCKET state =
+      _connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
 
-		int state = send(sock, _msg.c_str(), _msg.length(), flags);
-		return state;
-	}
+  return state;
+}
 
-	int Socket::Send(char *_msg, int _len, int flags) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+int Socket::Send(std::string _msg, int flags) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		int state = send(sock, _msg, _len, flags);
-		return state;
-	}
+  int state = send(sock, _msg.c_str(), _msg.length(), flags);
+  return state;
+}
 
-	int Socket::Recv(std::string &buff, int _msgLen, int _flags) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+int Socket::Send(char *_msg, int _len, int flags) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		char *cbuffer = new char[_msgLen];
-		int state = recv(sock, cbuffer, _msgLen, _flags);
+  int state = send(sock, _msg, _len, flags);
+  return state;
+}
 
-		if (state > 0)
-		{
-			buff = "";
-			for (int i = 0; i < state; i++)
-			{
-				buff += cbuffer[i];
-			}
-		}
+int Socket::Recv(std::string &buff, int _msgLen, int _flags) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		delete[] cbuffer;
-		return state;
-	}
+  char *cbuffer = new char[_msgLen];
+  int state = recv(sock, cbuffer, _msgLen, _flags);
 
-	int Socket::Recv(char *buff, int _msgLen, int _flags) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  if (state > 0) {
+    buff = "";
+    for (int i = 0; i < state; i++) {
+      buff += cbuffer[i];
+    }
+  }
 
-		int state = recv(sock, buff, _msgLen, _flags);
-		return state;
-	}
+  delete[] cbuffer;
+  return state;
+}
 
-	int Socket::Connect(std::string _ip, int _port) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+int Socket::Recv(char *buff, int _msgLen, int _flags) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		sockaddr_in addr;
-		addr.sin_family = m_family;
-		addr.sin_addr.s_addr = inet_addr(_ip.c_str());
-		addr.sin_port = htons(_port);
+  int state = recv(sock, buff, _msgLen, _flags);
+  return state;
+}
 
-		int state = connect(sock, (sockaddr *)&addr, (socklen_t)sizeof(addr));
-		return state;
-	}
+int Socket::Connect(std::string _ip, int _port) const {
+  if (!m_init) {
+    return sock;
+  }
 
-	void Socket::Close()
-	{
-		close(sock);
-		m_init = false;
-	}
+  sockaddr_in addr;
+  addr.sin_family = m_family;
+  addr.sin_addr.s_addr = inet_addr(_ip.c_str());
+  addr.sin_port = htons(_port);
 
-	Socket::~Socket() { this->Close(); }
+  int state = connect(sock, (sockaddr *)&addr, (socklen_t)sizeof(addr));
+  return state;
+}
+
+void Socket::Close() {
+  close(sock);
+  m_init = false;
+}
+
+Socket::~Socket() { this->Close(); }
 } // namespace GNetworking
 
 // -------------------------------------
@@ -210,207 +182,171 @@ namespace GNetworking
 #include "GNetworking/Socket.hpp"
 #include "GNetworking/WSA.hpp"
 
-namespace GNetworking
-{
+namespace GNetworking {
 
-	Socket::Socket() : m_init(false)
-	{
-		GNetworking::WSAInit();
-	}
+void Socket::Init() { GNetworking::WSAInit(); }
+void Socket::DeInit() { GNetworking::WSAEnd(); }
 
-	Socket::Socket(const int &_family, const int &_type, const int &_protocol)
-	{
-		CreateSocket(_family, _type, _protocol);
-	}
+Socket::Socket() : m_init(false) {}
 
-	SOCKET Socket::SetSocket(const SOCKET &_sock, const int &_family,
-							 const int &_type, const int &_protocol)
-	{
-		if (_sock != SOCKET_ERROR)
-		{
-			m_family = _family;
-			m_type = _type;
-			m_protocol = _protocol;
-			sock = _sock;
-			m_init = true;
-			return _sock;
-		}
-		else
-		{
-			return _sock;
-		}
-	}
+Socket::Socket(const int &_family, const int &_type, const int &_protocol) {
+  CreateSocket(_family, _type, _protocol);
+}
 
-	SOCKET Socket::CreateSocket(const int &_family, const int &_type,
-								const int &_protocol)
-	{
-		m_family = _family;
-		m_type = _type;
-		m_protocol = _protocol;
+SOCKET Socket::SetSocket(const SOCKET &_sock, const int &_family,
+                         const int &_type, const int &_protocol) {
+  if (_sock != SOCKET_ERROR) {
+    m_family = _family;
+    m_type = _type;
+    m_protocol = _protocol;
+    sock = _sock;
+    m_init = true;
+    return _sock;
+  } else {
+    return _sock;
+  }
+}
 
-		sock = socket(m_family, m_type, m_protocol);
+SOCKET Socket::CreateSocket(const int &_family, const int &_type,
+                            const int &_protocol) {
+  m_family = _family;
+  m_type = _type;
+  m_protocol = _protocol;
 
-		if (sock != SOCKET_ERROR)
-		{
-			m_init = true;
-		}
+  sock = socket(m_family, m_type, m_protocol);
 
-		return sock;
-	}
+  if (sock != SOCKET_ERROR) {
+    m_init = true;
+  }
 
-	int Socket::Bind(std::string _ip, int _port) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  return sock;
+}
 
-		struct sockaddr_in addr;
-		addr.sin_family = m_family;
-		addr.sin_addr.s_addr = inet_addr(_ip.c_str());
-		addr.sin_port = htons(_port);
+int Socket::Bind(std::string _ip, int _port) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		int state = bind(sock, (sockaddr *)&addr, sizeof(addr));
-		return state;
-	}
+  struct sockaddr_in addr;
+  addr.sin_family = m_family;
+  addr.sin_addr.s_addr = inet_addr(_ip.c_str());
+  addr.sin_port = htons(_port);
 
-	int Socket::Listen(const unsigned int &_connectionsNum) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  int state = bind(sock, (sockaddr *)&addr, sizeof(addr));
+  return state;
+}
 
-		int state;
-		if (_connectionsNum == 0)
-		{
-			state = listen(sock, SOMAXCONN);
-		}
-		else
-		{
-			state = listen(sock, _connectionsNum);
-		}
-		return state;
-	}
+int Socket::Listen(const unsigned int &_connectionsNum) const {
+  if (!m_init) {
+    return sock;
+  }
 
-	SOCKET Socket::Accept(Socket &_connectedSock) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  int state;
+  if (_connectionsNum == 0) {
+    state = listen(sock, SOMAXCONN);
+  } else {
+    state = listen(sock, _connectionsNum);
+  }
+  return state;
+}
 
-		SOCKET sockReturn = accept(sock, nullptr, nullptr);
-		SOCKET state =
-			_connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
+SOCKET Socket::Accept(Socket &_connectedSock) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		return state;
-	}
+  SOCKET sockReturn = accept(sock, nullptr, nullptr);
+  SOCKET state =
+      _connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
 
-	SOCKET Socket::Accept(Socket &_connectedSock, const std::string &_addr,
-						  const int &_port) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  return state;
+}
 
-		sockaddr_in addr_in;
-		addr_in.sin_addr.s_addr = inet_addr(_addr.c_str());
-		addr_in.sin_port = htons(_port);
-		addr_in.sin_family = m_family;
+SOCKET Socket::Accept(Socket &_connectedSock, const std::string &_addr,
+                      const int &_port) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		SOCKET sockReturn =
-			accept(sock, (sockaddr *)&addr_in, (int *)sizeof(addr_in));
-		SOCKET state =
-			_connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
+  sockaddr_in addr_in;
+  addr_in.sin_addr.s_addr = inet_addr(_addr.c_str());
+  addr_in.sin_port = htons(_port);
+  addr_in.sin_family = m_family;
 
-		return state;
-	}
+  SOCKET sockReturn =
+      accept(sock, (sockaddr *)&addr_in, (int *)sizeof(addr_in));
+  SOCKET state =
+      _connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
 
-	int Socket::Send(std::string _msg, int flags) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  return state;
+}
 
-		int state = send(sock, _msg.c_str(), _msg.length(), flags);
-		return state;
-	}
+int Socket::Send(std::string _msg, int flags) const {
+  if (!m_init) {
+    return sock;
+  }
 
-	int Socket::Send(char *_msg, int _len, int flags) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  int state = send(sock, _msg.c_str(), _msg.length(), flags);
+  return state;
+}
 
-		int state = send(sock, _msg, _len, flags);
-		return state;
-	}
+int Socket::Send(char *_msg, int _len, int flags) const {
+  if (!m_init) {
+    return sock;
+  }
 
-	int Socket::Recv(std::string &buff, int _msgLen, int _flags) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  int state = send(sock, _msg, _len, flags);
+  return state;
+}
 
-		char *cbuffer = new char[_msgLen];
-		int state = recv(sock, cbuffer, _msgLen, _flags);
+int Socket::Recv(std::string &buff, int _msgLen, int _flags) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		if (state > 0)
-		{
-			buff = "";
-			for (int i = 0; i < state; i++)
-			{
-				buff += cbuffer[i];
-			}
-		}
+  char *cbuffer = new char[_msgLen];
+  int state = recv(sock, cbuffer, _msgLen, _flags);
 
-		delete[] cbuffer;
-		return state;
-	}
+  if (state > 0) {
+    buff = "";
+    for (int i = 0; i < state; i++) {
+      buff += cbuffer[i];
+    }
+  }
 
-	int Socket::Recv(char *buff, int _msgLen, int _flags) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  delete[] cbuffer;
+  return state;
+}
 
-		int state = recv(sock, buff, _msgLen, _flags);
-		return state;
-	}
+int Socket::Recv(char *buff, int _msgLen, int _flags) const {
+  if (!m_init) {
+    return sock;
+  }
 
-	int Socket::Connect(std::string _ip, int _port) const
-	{
-		if (!m_init)
-		{
-			return sock;
-		}
+  int state = recv(sock, buff, _msgLen, _flags);
+  return state;
+}
 
-		sockaddr_in addr;
-		addr.sin_family = m_family;
-		addr.sin_addr.s_addr = inet_addr(_ip.c_str());
-		addr.sin_port = htons(_port);
+int Socket::Connect(std::string _ip, int _port) const {
+  if (!m_init) {
+    return sock;
+  }
 
-		int state = connect(sock, (sockaddr *)&addr, sizeof(addr));
-		return state;
-	}
+  sockaddr_in addr;
+  addr.sin_family = m_family;
+  addr.sin_addr.s_addr = inet_addr(_ip.c_str());
+  addr.sin_port = htons(_port);
 
-	void Socket::Close()
-	{
-		closesocket(sock);
-		m_init = false;
-	}
+  int state = connect(sock, (sockaddr *)&addr, sizeof(addr));
+  return state;
+}
 
-	Socket::~Socket()
-	{
-		Close();
-		GNetworking::WSAEnd();
-	}
+void Socket::Close() {
+  closesocket(sock);
+  m_init = false;
+}
+
+Socket::~Socket() { Close(); }
 } // namespace GNetworking
 
 #endif
