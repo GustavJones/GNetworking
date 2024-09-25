@@ -12,7 +12,6 @@ typedef int SOCKET;
 #elif _MSC_VER
 #include "WSA.hpp"
 #include <iostream>
-
 #endif
 
 namespace GNetworking

@@ -1,7 +1,6 @@
-namespace GNetworking {
-	// -------------------------------------
-	// ------------- Linux -----------------
-	// -------------------------------------
+// -------------------------------------
+// ------------- Linux -----------------
+// -------------------------------------
 #ifdef __GNUC__
 
 #include "GNetworking/Socket.hpp"
@@ -9,12 +8,14 @@ namespace GNetworking {
 #include <netinet/in.h>
 #include <sys/socket.h>
 
+namespace GNetworking
+{
 	Socket::Socket() : m_init(false)
 	{
 	}
 
-	SOCKET Socket::SetSocket(const SOCKET& _sock, const int& _family, const int& _type,
-		const int& _protocol)
+	SOCKET Socket::SetSocket(const SOCKET &_sock, const int &_family, const int &_type,
+							 const int &_protocol)
 	{
 		if (_sock > 0)
 		{
@@ -31,8 +32,8 @@ namespace GNetworking {
 		}
 	}
 
-	SOCKET Socket::CreateSocket(const int& _family, const int& _type,
-		const int& _protocol)
+	SOCKET Socket::CreateSocket(const int &_family, const int &_type,
+								const int &_protocol)
 	{
 		m_family = _family;
 		m_type = _type;
@@ -47,7 +48,7 @@ namespace GNetworking {
 		return sock;
 	}
 
-	Socket::Socket(const int& _family, const int& _type, const int& _protocol)
+	Socket::Socket(const int &_family, const int &_type, const int &_protocol)
 	{
 		CreateSocket(_family, _type, _protocol);
 	}
@@ -63,11 +64,11 @@ namespace GNetworking {
 		addr.sin_addr.s_addr = inet_addr(_ip.c_str());
 		addr.sin_port = htons(_port);
 
-		int state = bind(sock, (sockaddr*)&addr, (socklen_t)sizeof(addr));
+		int state = bind(sock, (sockaddr *)&addr, (socklen_t)sizeof(addr));
 		return state;
 	}
 
-	int Socket::Listen(const unsigned int& _connectionsNum)
+	int Socket::Listen(const unsigned int &_connectionsNum)
 	{
 		if (!m_init)
 		{
@@ -86,7 +87,7 @@ namespace GNetworking {
 		return state;
 	}
 
-	SOCKET Socket::Accept(Socket& _connectedSock)
+	SOCKET Socket::Accept(Socket &_connectedSock)
 	{
 		if (!m_init)
 		{
@@ -100,8 +101,8 @@ namespace GNetworking {
 		return state;
 	}
 
-	SOCKET Socket::Accept(Socket& _connectedSock, const std::string& _addr,
-		const int& _port)
+	SOCKET Socket::Accept(Socket &_connectedSock, const std::string &_addr,
+						  const int &_port)
 	{
 		if (!m_init)
 		{
@@ -114,7 +115,7 @@ namespace GNetworking {
 		addr_in.sin_family = m_family;
 
 		SOCKET sockReturn =
-			accept(sock, (sockaddr*)&addr_in, (socklen_t*)sizeof(addr_in));
+			accept(sock, (sockaddr *)&addr_in, (socklen_t *)sizeof(addr_in));
 		SOCKET state =
 			_connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
 
@@ -132,7 +133,7 @@ namespace GNetworking {
 		return state;
 	}
 
-	int Socket::Send(char* _msg, int _len, int flags) const
+	int Socket::Send(char *_msg, int _len, int flags) const
 	{
 		if (!m_init)
 		{
@@ -143,14 +144,14 @@ namespace GNetworking {
 		return state;
 	}
 
-	int Socket::Recv(std::string& buff, int _msgLen, int _flags) const
+	int Socket::Recv(std::string &buff, int _msgLen, int _flags) const
 	{
 		if (!m_init)
 		{
 			return sock;
 		}
 
-		char* cbuffer = new char[_msgLen];
+		char *cbuffer = new char[_msgLen];
 		int state = recv(sock, cbuffer, _msgLen, _flags);
 
 		if (state > 0)
@@ -178,7 +179,7 @@ namespace GNetworking {
 		addr.sin_addr.s_addr = inet_addr(_ip.c_str());
 		addr.sin_port = htons(_port);
 
-		int state = connect(sock, (sockaddr*)&addr, (socklen_t)sizeof(addr));
+		int state = connect(sock, (sockaddr *)&addr, (socklen_t)sizeof(addr));
 		return state;
 	}
 
@@ -189,27 +190,31 @@ namespace GNetworking {
 	}
 
 	Socket::~Socket() { this->Close(); }
+}
 
-	// -------------------------------------
-	// ------------ Windows ----------------
-	// -------------------------------------
+// -------------------------------------
+// ------------ Windows ----------------
+// -------------------------------------
 
 #elif _MSC_VER
 
 #include "GNetworking/Socket.hpp"
 #include "GNetworking/WSA.hpp"
 
+namespace GNetworking
+{
+
 	Socket::Socket() : m_init(false)
 	{
-		GNetworking::WSAInit();
+		// GNetworking::WSAInit();
 	}
 
-	Socket::Socket(const int& _family, const int& _type, const int& _protocol)
+	Socket::Socket(const int &_family, const int &_type, const int &_protocol)
 	{
 		CreateSocket(_family, _type, _protocol);
 	}
 
-	SOCKET Socket::SetSocket(const SOCKET& _sock, const int& _family, const int& _type, const int& _protocol)
+	SOCKET Socket::SetSocket(const SOCKET &_sock, const int &_family, const int &_type, const int &_protocol)
 	{
 		if (_sock != SOCKET_ERROR)
 		{
@@ -226,7 +231,7 @@ namespace GNetworking {
 		}
 	}
 
-	SOCKET Socket::CreateSocket(const int& _family, const int& _type, const int& _protocol)
+	SOCKET Socket::CreateSocket(const int &_family, const int &_type, const int &_protocol)
 	{
 		m_family = _family;
 		m_type = _type;
@@ -248,16 +253,17 @@ namespace GNetworking {
 		{
 			return sock;
 		}
-		sockaddr_in addr;
+
+		struct sockaddr_in addr;
 		addr.sin_family = m_family;
 		addr.sin_addr.s_addr = inet_addr(_ip.c_str());
 		addr.sin_port = htons(_port);
 
-		int state = bind(sock, (sockaddr*)&addr, sizeof(addr));
+		int state = bind(sock, (sockaddr *)&addr, sizeof(addr));
 		return state;
 	}
 
-	int Socket::Listen(const unsigned int& _connectionsNum = 0) const
+	int Socket::Listen(const unsigned int &_connectionsNum) const
 	{
 		if (!m_init)
 		{
@@ -276,7 +282,7 @@ namespace GNetworking {
 		return state;
 	}
 
-	SOCKET Socket::Accept(Socket& _connectedSock) const
+	SOCKET Socket::Accept(Socket &_connectedSock) const
 	{
 		if (!m_init)
 		{
@@ -290,7 +296,7 @@ namespace GNetworking {
 		return state;
 	}
 
-	SOCKET Socket::Accept(Socket& _connectedSock, const std::string& _addr, const int& _port) const
+	SOCKET Socket::Accept(Socket &_connectedSock, const std::string &_addr, const int &_port) const
 	{
 		if (!m_init)
 		{
@@ -303,14 +309,14 @@ namespace GNetworking {
 		addr_in.sin_family = m_family;
 
 		SOCKET sockReturn =
-			accept(sock, (sockaddr*)&addr_in, (int*)sizeof(addr_in));
+			accept(sock, (sockaddr *)&addr_in, (int *)sizeof(addr_in));
 		SOCKET state =
 			_connectedSock.SetSocket(sockReturn, m_family, m_type, m_protocol);
 
 		return state;
 	}
 
-	int Socket::Send(std::string _msg, int flags = 0) const
+	int Socket::Send(std::string _msg, int flags) const
 	{
 		if (!m_init)
 		{
@@ -321,7 +327,7 @@ namespace GNetworking {
 		return state;
 	}
 
-	int Socket::Send(char* _msg, int _len, int flags = 0) const
+	int Socket::Send(char *_msg, int _len, int flags) const
 	{
 		if (!m_init)
 		{
@@ -332,14 +338,14 @@ namespace GNetworking {
 		return state;
 	}
 
-	int Socket::Recv(std::string& buff, int _msgLen = 1024, int _flags = 0) const
+	int Socket::Recv(std::string &buff, int _msgLen, int _flags) const
 	{
 		if (!m_init)
 		{
 			return sock;
 		}
 
-		char* cbuffer = new char[_msgLen];
+		char *cbuffer = new char[_msgLen];
 		int state = recv(sock, cbuffer, _msgLen, _flags);
 
 		if (state > 0)
@@ -355,7 +361,7 @@ namespace GNetworking {
 		return state;
 	}
 
-	int Socket::Recv(char* buff, int _msgLen = 1024, int _flags = 0) const
+	int Socket::Recv(char *buff, int _msgLen, int _flags) const
 	{
 		if (!m_init)
 		{
@@ -378,7 +384,7 @@ namespace GNetworking {
 		addr.sin_addr.s_addr = inet_addr(_ip.c_str());
 		addr.sin_port = htons(_port);
 
-		int state = connect(sock, (sockaddr*)&addr, sizeof(addr));
+		int state = connect(sock, (sockaddr *)&addr, sizeof(addr));
 		return state;
 	}
 
@@ -393,6 +399,6 @@ namespace GNetworking {
 		Close();
 		GNetworking::WSAEnd();
 	}
+}
 
 #endif
-}
