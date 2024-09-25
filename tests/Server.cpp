@@ -1,5 +1,4 @@
 #include "GNetworking/Socket.hpp"
-#include <cstdlib>
 #include <iostream>
 
 int main(int argc, char const *argv[])

@@ -1,7 +1,6 @@
 #include "GNetworking/WSA.hpp"
-#ifdef _WIN32
+#ifdef _MSC_VER
 #include <iostream>
-#include <winsock2.h>
 
 namespace GNetworking {
 void WSAInit() {
