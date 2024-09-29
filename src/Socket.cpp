@@ -170,7 +170,7 @@ void Socket::Close() {
   m_init = false;
 }
 
-Socket::~Socket() { this->Close(); }
+Socket::~Socket() {}
 } // namespace GNetworking
 
 // -------------------------------------
@@ -346,7 +346,7 @@ void Socket::Close() {
   m_init = false;
 }
 
-Socket::~Socket() { Close(); }
+Socket::~Socket() {}
 } // namespace GNetworking
 
 #endif
