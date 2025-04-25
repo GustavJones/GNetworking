@@ -7,26 +7,26 @@
 #include <WinSock2.h>
 #endif // _WIN32
 
-namespace Wepp {
+namespace GNetworking {
 #if defined _WIN32
 
-typedef SOCKET WeppSocket;
-typedef int WeppSocketAddressFamily;
-typedef int WeppSocketType;
-typedef int WeppSocketProtocol;
-typedef int WeppSocketFlags;
-typedef short WeppPollEvents;
+typedef SOCKET GNetworkingSocket;
+typedef int GNetworkingSocketAddressFamily;
+typedef int GNetworkingSocketType;
+typedef int GNetworkingSocketProtocol;
+typedef int GNetworkingSocketFlags;
+typedef short GNetworkingPollEvents;
 
-#define WeppInvalidSocket INVALID_SOCKET
-#define WeppPOLLIN POLLIN
-#define WeppPOLLOUT POLLOUT
-#define WeppPOLLHUP POLLHUP
+#define GNetworkingInvalidSocket INVALID_SOCKET
+#define GNetworkingPOLLIN POLLIN
+#define GNetworkingPOLLOUT POLLOUT
+#define GNetworkingPOLLHUP POLLHUP
 
 #elif defined __linux__
 
-typedef int WeppSocket;
-typedef int WeppSocketFlags;
-#define WeppInvalidSocket -1;
+typedef int GNetworkingSocket;
+typedef int GNetworkingSocketFlags;
+#define GNetworkingInvalidSocket -1;
 
 #endif // _WIN32
 
@@ -34,16 +34,19 @@ int SocketSetup();
 int SocketCleanup();
 
 [[nodiscard]]
-WeppSocket SocketAccept(const WeppSocket &_socket);
+GNetworkingSocket SocketAccept(const GNetworkingSocket &_socket);
+int SocketBind(const GNetworkingSocket &_socket, const std::string &_address, const uint16_t _port);
+int SocketListen(const GNetworkingSocket &_socket);
+int SocketConnect(const GNetworkingSocket &_socket, const std::string &_address, const uint16_t _port);
 
 [[nodiscard]]
-WeppSocket SocketCreate();
-int SocketShutdown(const WeppSocket &_socket);
-int SocketClose(const WeppSocket &_socket);
+GNetworkingSocket SocketCreate(const GNetworkingSocketAddressFamily _family, const GNetworkingSocketType _type, const GNetworkingSocketProtocol _proto);
+int SocketShutdown(const GNetworkingSocket &_socket, const GNetworkingSocketFlags _flags);
+int SocketClose(const GNetworkingSocket &_socket);
 
-int SocketRecv(const WeppSocket &_socket, char *_buffer, const size_t _bufferLen, const WeppSocketFlags _flags);
-int SocketSend(const WeppSocket &_socket, const char *_buffer, const size_t _bufferLen, const WeppSocketFlags _flags);
+int SocketRecv(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags);
+int SocketSend(const GNetworkingSocket &_socket, const char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags);
 
 [[nodiscard]]
-bool SocketPoll(const WeppSocket &_socket, const WeppPollEvents _events);
+bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _events);
 } // namespace Wepp

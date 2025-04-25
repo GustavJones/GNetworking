@@ -1,97 +1,86 @@
 #if defined _WIN32
-#include "Server/Socket.hpp"
+#include "GNetworking/Socket.hpp"
 #include <WS2tcpip.h>
 #include <WinSock2.h>
 
-namespace Wepp {
-int SocketSetup(WeppSocket &_socket, const std::string &_address,
+namespace GNetworking {
+int SocketSetup(GNetworkingSocket &_socket, const std::string &_address,
                 const uint16_t _port) {
-  int status;
   WSADATA wsaData;
-  status = WSAStartup(MAKEWORD(2, 2), &wsaData);
-  if (status != 0) {
-    return status;
-  }
-
-  addrinfo *result = nullptr, hints;
-  ZeroMemory(&hints, sizeof(hints));
-
-  hints.ai_family = AF_INET;
-  hints.ai_socktype = SOCK_STREAM;
-  hints.ai_protocol = IPPROTO_TCP;
-  hints.ai_flags = AI_PASSIVE;
-
-  status = getaddrinfo(_address.c_str(), std::to_string(_port).c_str(), &hints, &result);
-  if (status != 0) {
-    SocketCleanup(_socket);
-    return status;
-  }
-
-  _socket = WeppInvalidSocket;
-
-  _socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
-  if (_socket == INVALID_SOCKET) {
-    freeaddrinfo(result);
-    SocketCleanup(_socket);
-    return 1;
-  }
-
-  status = bind(_socket, result->ai_addr, (int)result->ai_addrlen);
-  if (status == SOCKET_ERROR) {
-    freeaddrinfo(result);
-    SocketCleanup(_socket);
-    return 1;
-  }
-
-  freeaddrinfo(result);
-
-  if (listen(_socket, SOMAXCONN) == SOCKET_ERROR) {
-    SocketCleanup(_socket);
-    return 1;
-  }
-
-  return 0;
+  return WSAStartup(MAKEWORD(2, 2), &wsaData);
 }
 
-int SocketCleanup(WeppSocket &_socket) {
-  int status = WSACleanup();
-
-  if (status != 0) {
-    return status;
-  }
-
-  return 0;
+int SocketCleanup() {
+  return WSACleanup();
 }
 
-WeppSocket SocketAccept(const WeppSocket &_socket) {
-  WeppSocket client = WeppInvalidSocket;
+GNetworkingSocket SocketAccept(const GNetworkingSocket &_socket) {
+  GNetworkingSocket client = GNetworkingInvalidSocket;
 
   client = accept(_socket, NULL, NULL);
   return client;
 }
 
-int SocketClose(const WeppSocket &_socket) {
+int SocketBind(const GNetworkingSocket &_socket, const std::string &_address, const uint16_t _port) {
+  addrinfo *result = nullptr;
+  int status = getaddrinfo(_address.c_str(), std::to_string(_port).c_str(), nullptr, &result);
+
+  if (status != 0) {
+    return status;
+  }
+
+  status = bind(_socket, result->ai_addr, (int)result->ai_addrlen);
+  freeaddrinfo(result);
+  return status;
+}
+
+int SocketListen(const GNetworkingSocket &_socket) {
+  return listen(_socket, SOMAXCONN);
+}
+
+int SocketConnect(const GNetworkingSocket &_socket, const std::string &_address, const uint16_t _port) {
+  addrinfo *result = nullptr;
+  int status = getaddrinfo(_address.c_str(), std::to_string(_port).c_str(), nullptr, &result);
+
+  if (status != 0)
+  {
+    return status;
+  }
+
+  status = connect(_socket, result->ai_addr, (int)result->ai_addrlen);
+  return status;
+}
+
+GNetworkingSocket SocketCreate(const GNetworkingSocketAddressFamily _family, const GNetworkingSocketType _type, const GNetworkingSocketProtocol _proto) {
+  return socket(_family, _type, _proto);
+}
+
+int SocketShutdown(const GNetworkingSocket &_socket, const GNetworkingSocketFlags _flags) {
+  return shutdown(_socket, _flags);
+}
+
+int SocketClose(const GNetworkingSocket &_socket) {
   return closesocket(_socket);
 }
 
-int SocketRecv(const WeppSocket &_socket, char *_buffer, const size_t _bufferLen, const WeppSocketFlags _flags) {
+int SocketRecv(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags) {
   return recv(_socket, _buffer, _bufferLen, _flags);
 }
 
 
-int SocketSend(const WeppSocket &_socket, const char *_buffer, const size_t _bufferLen, const WeppSocketFlags _flags) {
+int SocketSend(const GNetworkingSocket &_socket, const char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags) {
   return send(_socket, _buffer, _bufferLen, _flags);
 }
 
 
-bool SocketPoll(const WeppSocket &_socket, const WeppPollEvents _events) {
+bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _events) {
   WSAPOLLFD pollStruct;
   pollStruct.fd = _socket;
   pollStruct.events = 0;
   pollStruct.revents = 0;
 
-  if (_events & WeppPOLLHUP) {
-    pollStruct.events |= WeppPOLLHUP;
+  if (_events & GNetworkingPOLLHUP) {
+    pollStruct.events |= GNetworkingPOLLHUP;
   }
 
   pollStruct.events ^= _events;
