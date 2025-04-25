@@ -4,8 +4,7 @@
 #include <WinSock2.h>
 
 namespace GNetworking {
-int SocketSetup(GNetworkingSocket &_socket, const std::string &_address,
-                const uint16_t _port) {
+int SocketSetup() {
   WSADATA wsaData;
   return WSAStartup(MAKEWORD(2, 2), &wsaData);
 }
