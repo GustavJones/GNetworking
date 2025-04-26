@@ -1,10 +1,15 @@
 #pragma once
+#include <csignal>
 #include <cstddef>
 #include <string>
 #include <cstdint>
 
-#ifdef _WIN32
+#if defined _WIN32
 #include <WinSock2.h>
+#elif defined __linux__
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <poll.h>
 #endif // _WIN32
 
 namespace GNetworking {
@@ -21,12 +26,25 @@ typedef short GNetworkingPollEvents;
 #define GNetworkingPOLLIN POLLIN
 #define GNetworkingPOLLOUT POLLOUT
 #define GNetworkingPOLLHUP POLLHUP
+#define GNetworkingSHUTDOWNRD SD_RECEIVE
+#define GNetworkingSHUTDOWNWR SD_SEND
+#define GNetworkingSHUTDOWNRDWR SD_BOTH
 
 #elif defined __linux__
-
 typedef int GNetworkingSocket;
+typedef int GNetworkingSocketAddressFamily;
+typedef int GNetworkingSocketType;
+typedef int GNetworkingSocketProtocol;
 typedef int GNetworkingSocketFlags;
-#define GNetworkingInvalidSocket -1;
+typedef short GNetworkingPollEvents;
+
+#define GNetworkingInvalidSocket -1
+#define GNetworkingPOLLIN POLLIN
+#define GNetworkingPOLLOUT POLLOUT
+#define GNetworkingPOLLHUP POLLHUP
+#define GNetworkingSHUTDOWNRD SHUT_RD
+#define GNetworkingSHUTDOWNWR SHUT_WR
+#define GNetworkingSHUTDOWNRDWR SHUT_RDWR
 
 #endif // _WIN32
 
