@@ -1,5 +1,6 @@
 #if defined __linux__
 #include "GNetworking/Socket.hpp"
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
 

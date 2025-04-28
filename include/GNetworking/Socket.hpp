@@ -16,6 +16,7 @@ namespace GNetworking {
 typedef int GNetworkingSocketLevel;
 typedef int GNetworkingSocketOption;
 typedef const void * GNetworkingSocketValue;
+
 #if defined _WIN32
 
 typedef SOCKET GNetworkingSocket;
