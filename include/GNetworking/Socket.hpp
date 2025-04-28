@@ -13,6 +13,9 @@
 #endif // _WIN32
 
 namespace GNetworking {
+typedef int GNetworkingSocketLevel;
+typedef int GNetworkingSocketOption;
+typedef const void * GNetworkingSocketValue;
 #if defined _WIN32
 
 typedef SOCKET GNetworkingSocket;
@@ -67,4 +70,6 @@ int SocketSend(const GNetworkingSocket &_socket, const char *_buffer, const size
 
 [[nodiscard]]
 bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _events);
+
+int SocketSetOption(const GNetworkingSocket &_socket, const GNetworkingSocketLevel _level, const GNetworkingSocketOption _option, GNetworkingSocketValue _value, const size_t _valueLen);
 } // namespace Wepp
