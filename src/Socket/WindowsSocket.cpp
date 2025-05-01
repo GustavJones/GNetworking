@@ -97,5 +97,9 @@ bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _e
 
 }
 
+int SocketSetOption(const GNetworkingSocket &_socket, const GNetworkingSocketLevel _level, const GNetworkingSocketOption _option, GNetworkingSocketValue _value, const size_t _valueLen) {
+  return setsockopt(_socket, _level, _option, (const char *)_value, _valueLen);
+}
+
 } // namespace Wepp
 #endif // _WIN32
