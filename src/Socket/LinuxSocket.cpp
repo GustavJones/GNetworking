@@ -67,6 +67,11 @@ int SocketRecv(const GNetworkingSocket &_socket, char *_buffer, const size_t _bu
 }
 
 
+int SocketPeek(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags) {
+  return SocketRecv(_socket, _buffer, _bufferLen, MSG_PEEK | _flags);
+}
+
+
 int SocketSend(const GNetworkingSocket &_socket, const char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags) {
   return send(_socket, _buffer, _bufferLen, _flags);
 }

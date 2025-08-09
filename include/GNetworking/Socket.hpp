@@ -67,6 +67,7 @@ int SocketShutdown(const GNetworkingSocket &_socket, const GNetworkingSocketFlag
 int SocketClose(const GNetworkingSocket &_socket);
 
 int SocketRecv(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags);
+int SocketPeek(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags);
 int SocketSend(const GNetworkingSocket &_socket, const char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags);
 
 [[nodiscard]]
