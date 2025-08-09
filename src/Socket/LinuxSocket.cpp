@@ -1,3 +1,6 @@
+#include <cstddef>
+#include <cstdint>
+#include <vector>
 #if defined __linux__
 #include "GNetworking/Socket.hpp"
 #include <sys/socket.h>
@@ -100,6 +103,32 @@ bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _e
     return false;
   }
 
+}
+
+size_t SocketPollSize(const GNetworkingSocket &_socket) {
+  constexpr const size_t BUFFER_START_SIZE = 512;
+  constexpr const size_t BUFFER_GROWTH_INCREMENT = 2;
+
+  int output = -1;
+
+  std::vector<char> buffer(BUFFER_START_SIZE);
+
+  while (!SocketPoll(_socket, GNetworkingPOLLHUP)) {
+    output = SocketPeek(_socket, buffer.data(), buffer.size(), 0);
+
+    if (output >= buffer.size()) {
+      buffer.resize(buffer.size() * BUFFER_GROWTH_INCREMENT);
+    }
+    else {
+      break;
+    } 
+  }
+
+  if (output < 0) {
+    output = 0;
+  }
+
+  return output;
 }
 
 int SocketSetOption(const GNetworkingSocket &_socket, const GNetworkingSocketLevel _level, const GNetworkingSocketOption _option, GNetworkingSocketValue _value, const size_t _valueLen) {

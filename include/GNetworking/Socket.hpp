@@ -73,5 +73,8 @@ int SocketSend(const GNetworkingSocket &_socket, const char *_buffer, const size
 [[nodiscard]]
 bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _events);
 
+[[nodiscard]]
+size_t SocketPollSize(const GNetworkingSocket &_socket);
+
 int SocketSetOption(const GNetworkingSocket &_socket, const GNetworkingSocketLevel _level, const GNetworkingSocketOption _option, GNetworkingSocketValue _value, const size_t _valueLen);
 } // namespace Wepp
