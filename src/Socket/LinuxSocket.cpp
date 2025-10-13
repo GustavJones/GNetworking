@@ -113,7 +113,7 @@ size_t SocketPollSize(const GNetworkingSocket &_socket) {
 
   std::vector<char> buffer(BUFFER_START_SIZE);
 
-  while (!SocketPoll(_socket, GNetworkingPOLLHUP)) {
+  while (!SocketPoll(_socket, GNetworkingPOLLHUP) && SocketPoll(_socket, GNetworkingPOLLIN)) {
     output = SocketPeek(_socket, buffer.data(), buffer.size(), 0);
 
     if (output >= buffer.size()) {
