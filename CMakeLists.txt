@@ -3,6 +3,8 @@ project(GNetworking)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
+option(GNETWORKING_BUILD_TESTS "Build GNetworking Tests" OFF)
+
 file(GLOB SUBMODULES "external/*")
 
 foreach(SUBMODULE ${SUBMODULES})
@@ -14,4 +16,8 @@ foreach(SUBMODULE ${SUBMODULES})
   endif()
 endforeach()
 
-add_subdirectory(src)
+include(src/sources.cmake)
+
+if(GNETWORKING_BUILD_TESTS)
+	add_subdirectory(tests)
+endif()
