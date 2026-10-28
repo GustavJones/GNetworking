@@ -6,24 +6,35 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
+#include <unistd.h>
+
+#define SOCKET(sock) (int)sock
+#define AF(addressFamily) (int)addressFamily
+#define SOCK(socketType) (int)socketType
+#define PROTO(socketProtocol) (int)socketProtocol
+#define LEVEL(socketLevel) (int)socketLevel
+#define OPTION(socketOption) (int)socketOption
+#define SHUTDOWN(socketShutdownFlags) (int)socketShutdownFlags
 
 namespace GNetworking {
 int SocketSetup() {
+	// Does nothing on Linux but is required for cross platform support
   return 0;
 }
 
 int SocketCleanup() {
+	// Does nothing on Linux but is required for cross platform support
   return 0;
 }
 
-GNetworkingSocket SocketAccept(const GNetworkingSocket &_socket) {
-  GNetworkingSocket client = GNetworkingInvalidSocket;
+Socket SocketAccept(const Socket &_socket) {
+  Socket client = Socket::Invalid;
 
-  client = accept(_socket, NULL, NULL);
+  client = (Socket)accept(SOCKET(_socket), nullptr, nullptr);
   return client;
 }
 
-int SocketBind(const GNetworkingSocket &_socket, const std::string &_address, const uint16_t _port) {
+int SocketBind(const Socket &_socket, const std::string &_address, const uint16_t _port) {
   addrinfo *result = nullptr;
   int status = getaddrinfo(_address.c_str(), std::to_string(_port).c_str(), nullptr, &result);
 
@@ -31,16 +42,16 @@ int SocketBind(const GNetworkingSocket &_socket, const std::string &_address, co
     return status;
   }
 
-  status = bind(_socket, result->ai_addr, (int)result->ai_addrlen);
+  status = bind(SOCKET(_socket), result->ai_addr, (int)result->ai_addrlen);
   freeaddrinfo(result);
   return status;
 }
 
-int SocketListen(const GNetworkingSocket &_socket) {
-  return listen(_socket, SOMAXCONN);
+int SocketListen(const Socket &_socket) {
+  return listen(SOCKET(_socket), SOMAXCONN);
 }
 
-int SocketConnect(const GNetworkingSocket &_socket, const std::string &_address, const uint16_t _port) {
+int SocketConnect(const Socket &_socket, const std::string &_address, const uint16_t _port) {
   addrinfo *result = nullptr;
   int status = getaddrinfo(_address.c_str(), std::to_string(_port).c_str(), nullptr, &result);
 
@@ -49,45 +60,45 @@ int SocketConnect(const GNetworkingSocket &_socket, const std::string &_address,
     return status;
   }
 
-  status = connect(_socket, result->ai_addr, (int)result->ai_addrlen);
+  status = connect(SOCKET(_socket), result->ai_addr, (int)result->ai_addrlen);
   return status;
 }
 
-GNetworkingSocket SocketCreate(const GNetworkingSocketAddressFamily _family, const GNetworkingSocketType _type, const GNetworkingSocketProtocol _proto) {
-  return socket(_family, _type, _proto);
+Socket SocketCreate(const SocketAddressFamily _family, const SocketType _type, const SocketProtocol _proto) {
+  return (Socket)socket(AF(_family), SOCK(_type), PROTO(_proto));
 }
 
-int SocketShutdown(const GNetworkingSocket &_socket, const GNetworkingSocketFlags _flags) {
-  return shutdown(_socket, _flags);
+int SocketShutdown(const Socket &_socket, const SocketShutdownFlags _flags) {
+  return shutdown(SOCKET(_socket), SHUTDOWN(_flags));
 }
 
-int SocketClose(const GNetworkingSocket &_socket) {
-  return close(_socket);
+int SocketClose(const Socket &_socket) {
+  return close(SOCKET(_socket));
 }
 
-int SocketRecv(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags) {
-  return recv(_socket, _buffer, _bufferLen, _flags);
-}
-
-
-int SocketPeek(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags) {
-  return SocketRecv(_socket, _buffer, _bufferLen, MSG_PEEK | _flags);
+int SocketRecv(const Socket &_socket, char *_buffer, const size_t _bufferLen, const SocketFlagsBitMask _flags) {
+  return recv(SOCKET(_socket), _buffer, _bufferLen, _flags);
 }
 
 
-int SocketSend(const GNetworkingSocket &_socket, const char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags) {
-  return send(_socket, _buffer, _bufferLen, _flags);
+int SocketPeek(const Socket &_socket, char *_buffer, const size_t _bufferLen, const SocketFlagsBitMask _flags) {
+  return SocketRecv(_socket, _buffer, _bufferLen, SocketFlag::Peek | (SocketFlag)(int)_flags);
 }
 
 
-bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _events) {
+int SocketSend(const Socket &_socket, const char *_buffer, const size_t _bufferLen, const SocketFlagsBitMask _flags) {
+  return send(SOCKET(_socket), _buffer, _bufferLen, _flags);
+}
+
+
+bool SocketPoll(const Socket &_socket, const PollEventsBitMask _events) {
   pollfd pollStruct;
-  pollStruct.fd = _socket;
+  pollStruct.fd = SOCKET(_socket);
   pollStruct.events = 0;
   pollStruct.revents = 0;
 
-  if (_events & GNetworkingPOLLHUP) {
-    pollStruct.events |= GNetworkingPOLLHUP;
+  if ((_events & (PollEventsBitMask)GNetworking::PollEvent::PollHup)) {
+    pollStruct.events |= (PollEventsBitMask)GNetworking::PollEvent::PollHup;
   }
 
   pollStruct.events ^= _events;
@@ -105,7 +116,7 @@ bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _e
 
 }
 
-size_t SocketPollSize(const GNetworkingSocket &_socket) {
+size_t SocketPollSize(const Socket &_socket) {
   constexpr const size_t BUFFER_START_SIZE = 512;
   constexpr const size_t BUFFER_GROWTH_INCREMENT = 2;
 
@@ -113,8 +124,8 @@ size_t SocketPollSize(const GNetworkingSocket &_socket) {
 
   std::vector<char> buffer(BUFFER_START_SIZE);
 
-  while (!SocketPoll(_socket, GNetworkingPOLLHUP) && SocketPoll(_socket, GNetworkingPOLLIN)) {
-    output = SocketPeek(_socket, buffer.data(), buffer.size(), 0);
+  while (!SocketPoll(_socket, PollEvent::PollHup) && SocketPoll(_socket, PollEvent::PollIn)) {
+    output = SocketPeek(_socket, buffer.data(), buffer.size(), SocketFlag::None);
 
     if (output >= buffer.size()) {
       buffer.resize(buffer.size() * BUFFER_GROWTH_INCREMENT);
@@ -131,8 +142,11 @@ size_t SocketPollSize(const GNetworkingSocket &_socket) {
   return output;
 }
 
-int SocketSetOption(const GNetworkingSocket &_socket, const GNetworkingSocketLevel _level, const GNetworkingSocketOption _option, GNetworkingSocketValue _value, const size_t _valueLen) {
-  return setsockopt(_socket, _level, _option, _value, _valueLen);
+int SocketSetOption(const Socket &_socket, const SocketLevel _level, const SocketOption _option, const SocketSettings &_value) {
+	const void *value = nullptr;
+	size_t valueSize = 0;
+
+  return setsockopt(SOCKET(_socket), LEVEL(_level), OPTION(_option), _value.Settings(), _value.SizeOfSettings());
 }
 
 } // namespace Wepp

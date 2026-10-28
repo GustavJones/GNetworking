@@ -1,5 +1,4 @@
 #pragma once
-#include <csignal>
 #include <cstddef>
 #include <string>
 #include <cstdint>
@@ -13,68 +12,228 @@
 #endif // _WIN32
 
 namespace GNetworking {
-typedef int GNetworkingSocketLevel;
-typedef int GNetworkingSocketOption;
-typedef const void * GNetworkingSocketValue;
+
+struct SocketSettings {
+	virtual const void *Settings() const = 0;
+	virtual const size_t SizeOfSettings() const = 0;
+
+	virtual ~SocketSettings() = default;
+};
+
+enum class SocketLevel : int {
+	Socket = SOL_SOCKET,
+	TCP = IPPROTO_TCP
+};
+
+enum class SocketOption : int {
+	Linger = SO_LINGER,
+	ReuseAddr = SO_REUSEADDR,
+	ReusePort = SO_REUSEPORT
+};
+
+enum class SocketAddressFamily : int {
+	INET = AF_INET,
+	INET6 = AF_INET6,
+};
+
+enum class SocketType : int {
+	Stream = SOCK_STREAM,
+	DGRAM = SOCK_DGRAM
+};
+
+enum class SocketFlag : int {
+	None = 0,
+	Peek = MSG_PEEK,
+};
+
+enum class SocketProtocol : int {
+	Default = 0,
+	IP = IPPROTO_IP,
+	TCP = IPPROTO_TCP
+};
+
+enum class PollEvent : short {
+	PollIn = POLLIN,
+	PollOut = POLLOUT,
+	PollHup = POLLHUP
+};
 
 #if defined _WIN32
+enum class SocketShutdownFlags : int {
+	RD = SD_RECIEVE,
+	WR = SD_SEND,
+	RDWR = SD_BOTH,
+};
 
-typedef SOCKET GNetworkingSocket;
-typedef int GNetworkingSocketAddressFamily;
-typedef int GNetworkingSocketType;
-typedef int GNetworkingSocketProtocol;
-typedef int GNetworkingSocketFlags;
-typedef short GNetworkingPollEvents;
-
-#define GNetworkingInvalidSocket INVALID_SOCKET
-#define GNetworkingPOLLIN POLLIN
-#define GNetworkingPOLLOUT POLLOUT
-#define GNetworkingPOLLHUP POLLHUP
-#define GNetworkingSHUTDOWNRD SD_RECEIVE
-#define GNetworkingSHUTDOWNWR SD_SEND
-#define GNetworkingSHUTDOWNRDWR SD_BOTH
+enum class Socket : int {
+	Invalid = INVALID_SOCKET,
+};
 
 #elif defined __linux__
-typedef int GNetworkingSocket;
-typedef int GNetworkingSocketAddressFamily;
-typedef int GNetworkingSocketType;
-typedef int GNetworkingSocketProtocol;
-typedef int GNetworkingSocketFlags;
-typedef short GNetworkingPollEvents;
+enum class SocketShutdownFlags : int {
+	RD = SHUT_RD,
+	WR = SHUT_WR,
+	RDWR = SHUT_RDWR,
+};
 
-#define GNetworkingInvalidSocket -1
-#define GNetworkingPOLLIN POLLIN
-#define GNetworkingPOLLOUT POLLOUT
-#define GNetworkingPOLLHUP POLLHUP
-#define GNetworkingSHUTDOWNRD SHUT_RD
-#define GNetworkingSHUTDOWNWR SHUT_WR
-#define GNetworkingSHUTDOWNRDWR SHUT_RDWR
+enum class Socket : int {
+	Invalid = -1,
+};
 
-#endif // _WIN32
+struct LingerSettings final : private linger, public SocketSettings {
+	LingerSettings() {
+		this->l_onoff = 0;
+		this->l_linger = 0;
+	}
+
+	const void *Settings() const override {
+		return dynamic_cast<const linger *>(this);
+	}
+
+	const size_t SizeOfSettings() const override {
+		return sizeof(linger);
+	}
+
+	void SetStatus(int _status) { this->l_onoff = _status; }
+	void SetSeconds(int _seconds) { this->l_linger = _seconds; }
+
+	int GetStatus() const { return this->l_onoff; }
+	int GetSeconds() const { return this->l_linger; }
+};
+
+struct ReuseAddrSettings final : public SocketSettings {
+private:
+	int m_enabled = 0;
+
+public:
+	const void *Settings() const override{
+		return &m_enabled;
+	}
+
+	const size_t SizeOfSettings() const override {
+		return sizeof(int);
+	}
+
+	void SetEnabled(int _enabled) { m_enabled = _enabled; }
+	int GetEnabled() const { return m_enabled; }
+};
+#endif
+
+class SocketFlagsBitMask {
+private:
+	int m_value = 0;
+public:
+	SocketFlagsBitMask() = default;
+	SocketFlagsBitMask(const SocketFlag _flag) { m_value = (int)_flag; };
+
+	SocketFlagsBitMask operator&(const SocketFlagsBitMask _event) const { return (SocketFlag)(_event.m_value & m_value); }
+	SocketFlagsBitMask operator|(const SocketFlagsBitMask _event) const { return (SocketFlag)(_event.m_value | m_value); }
+	SocketFlagsBitMask operator^(const SocketFlagsBitMask _event) const { return (SocketFlag)(_event.m_value ^ m_value); }
+	SocketFlagsBitMask operator~() const { return (SocketFlag)(~m_value ); }
+
+	SocketFlagsBitMask& operator&=(const SocketFlagsBitMask _event) {
+		m_value &= _event.m_value;
+		return *this;
+	}
+
+	SocketFlagsBitMask& operator|=(const SocketFlagsBitMask _event) {
+		m_value |= _event.m_value;
+		return *this;
+	}
+
+	SocketFlagsBitMask& operator^=(const SocketFlagsBitMask _event) {
+		m_value ^= _event.m_value;
+		return *this;
+	}
+
+	operator int() const { return m_value; }
+};
+
+inline SocketFlagsBitMask operator&(const SocketFlag _event1, const SocketFlag _event2) {
+	return ((SocketFlagsBitMask)_event1 & (SocketFlagsBitMask)_event2);
+}
+
+inline SocketFlagsBitMask operator|(const SocketFlag _event1, const SocketFlag _event2) {
+	return ((SocketFlagsBitMask)_event1 | (SocketFlagsBitMask)_event2);
+}
+
+inline SocketFlagsBitMask operator^(const SocketFlag _event1, const SocketFlag _event2) {
+	return ((SocketFlagsBitMask)_event1 ^ (SocketFlagsBitMask)_event2);
+}
+
+inline SocketFlagsBitMask operator~(const SocketFlag _event1) {
+	return ~((SocketFlagsBitMask)_event1);
+}
+
+class PollEventsBitMask {
+private:
+	short m_value = 0;
+public:
+	PollEventsBitMask() = default;
+	PollEventsBitMask(const PollEvent _event) { m_value = (short)_event; };
+
+	PollEventsBitMask operator&(const PollEventsBitMask _event) const { return (PollEvent)(_event.m_value & m_value); }
+	PollEventsBitMask operator|(const PollEventsBitMask _event) const { return (PollEvent)(_event.m_value | m_value); }
+	PollEventsBitMask operator^(const PollEventsBitMask _event) const { return (PollEvent)(_event.m_value ^ m_value); }
+	PollEventsBitMask operator~() const { return (PollEvent)(~m_value ); }
+
+	PollEventsBitMask& operator&=(const PollEventsBitMask _event) {
+		m_value &= _event.m_value;
+		return *this;
+	}
+
+	PollEventsBitMask& operator|=(const PollEventsBitMask _event) {
+		m_value |= _event.m_value;
+		return *this;
+	}
+
+	PollEventsBitMask& operator^=(const PollEventsBitMask _event) {
+		m_value ^= _event.m_value;
+		return *this;
+	}
+
+	operator short() const { return m_value; }
+};
+
+inline PollEventsBitMask operator&(const PollEvent _event1, const PollEvent _event2) {
+	return ((PollEventsBitMask)_event1 & (PollEventsBitMask)_event2);
+}
+
+inline PollEventsBitMask operator|(const PollEvent _event1, const PollEvent _event2) {
+	return ((PollEventsBitMask)_event1 | (PollEventsBitMask)_event2);
+}
+
+inline PollEventsBitMask operator^(const PollEvent _event1, const PollEvent _event2) {
+	return ((PollEventsBitMask)_event1 ^ (PollEventsBitMask)_event2);
+}
+
+inline PollEventsBitMask operator~(const PollEvent _event1) {
+	return ~((PollEventsBitMask)_event1);
+}
 
 int SocketSetup();
 int SocketCleanup();
 
 [[nodiscard]]
-GNetworkingSocket SocketAccept(const GNetworkingSocket &_socket);
-int SocketBind(const GNetworkingSocket &_socket, const std::string &_address, const uint16_t _port);
-int SocketListen(const GNetworkingSocket &_socket);
-int SocketConnect(const GNetworkingSocket &_socket, const std::string &_address, const uint16_t _port);
+Socket SocketAccept(const Socket &_socket);
+int SocketBind(const Socket &_socket, const std::string &_address, const uint16_t _port);
+int SocketListen(const Socket &_socket);
+int SocketConnect(const Socket &_socket, const std::string &_address, const uint16_t _port);
 
 [[nodiscard]]
-GNetworkingSocket SocketCreate(const GNetworkingSocketAddressFamily _family, const GNetworkingSocketType _type, const GNetworkingSocketProtocol _proto);
-int SocketShutdown(const GNetworkingSocket &_socket, const GNetworkingSocketFlags _flags);
-int SocketClose(const GNetworkingSocket &_socket);
+Socket SocketCreate(const SocketAddressFamily _family, const SocketType _type, const SocketProtocol _proto);
+int SocketShutdown(const Socket &_socket, const SocketShutdownFlags _flags);
+int SocketClose(const Socket &_socket);
 
-int SocketRecv(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags);
-int SocketPeek(const GNetworkingSocket &_socket, char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags);
-int SocketSend(const GNetworkingSocket &_socket, const char *_buffer, const size_t _bufferLen, const GNetworkingSocketFlags _flags);
-
-[[nodiscard]]
-bool SocketPoll(const GNetworkingSocket &_socket, const GNetworkingPollEvents _events);
+int SocketRecv(const Socket &_socket, char *_buffer, const size_t _bufferLen, const SocketFlagsBitMask _flags);
+int SocketPeek(const Socket &_socket, char *_buffer, const size_t _bufferLen, const SocketFlagsBitMask _flags);
+int SocketSend(const Socket &_socket, const char *_buffer, const size_t _bufferLen, const SocketFlagsBitMask _flags);
 
 [[nodiscard]]
-size_t SocketPollSize(const GNetworkingSocket &_socket);
+bool SocketPoll(const Socket &_socket, const PollEventsBitMask _events);
 
-int SocketSetOption(const GNetworkingSocket &_socket, const GNetworkingSocketLevel _level, const GNetworkingSocketOption _option, GNetworkingSocketValue _value, const size_t _valueLen);
+[[nodiscard]]
+size_t SocketPollSize(const Socket &_socket);
+
+int SocketSetOption(const Socket &_socket, const SocketLevel _level, const SocketOption _option, const SocketSettings &_value);
 } // namespace Wepp
